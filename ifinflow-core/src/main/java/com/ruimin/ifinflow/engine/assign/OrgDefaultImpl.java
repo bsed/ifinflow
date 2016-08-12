@@ -1,6 +1,4 @@
-
 package com.ruimin.ifinflow.engine.assign;
-
 
 import com.ruimin.ifinflow.engine.assign.entity.IFinFlowGroupEntity;
 import com.ruimin.ifinflow.engine.assign.entity.IFinFlowRoleEntity;
@@ -32,893 +30,899 @@ import org.jbpm.pvm.internal.env.EnvironmentImpl;
 import org.jbpm.pvm.internal.id.DbidGenerator;
 import org.jbpm.pvm.internal.util.CollectionUtil;
 
+public class OrgDefaultImpl implements IdentityAdapter {
+	private Session session;
 
-public class OrgDefaultImpl
-        implements IdentityAdapter {
-    private Session session;
+	public OrgDefaultImpl(Session session) {
 
+		this.session = session;
 
-    public OrgDefaultImpl(Session session) {
+	}
 
-        this.session = session;
+	public IFinFlowUserEntity getStaffById(String staffId) {
 
-    }
+		IFinFlowUserEntity staff = (IFinFlowUserEntity) this.session.get(
+				IFinFlowUserEntity.class, staffId);
 
+		return staff;
 
-    public IFinFlowUserEntity getStaffById(String staffId) {
+	}
 
-        IFinFlowUserEntity staff = (IFinFlowUserEntity) this.session.get(IFinFlowUserEntity.class, staffId);
+	public List<IFinFlowUserEntity> getStaffs() {
 
+		List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class)
+				.add(Restrictions.eq("deleteFlag", "0")).list();
 
-        return staff;
+		return CollectionUtil.checkList(staffs, IFinFlowUserEntity.class);
 
-    }
+	}
 
+	public List<IWfRole> getRolesByStaffId(String staffId) {
 
-    public List<IFinFlowUserEntity> getStaffs() {
+		String hql = "select distinct r from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserRoleEntity m join m.staff s join m.role r where s.staffId = :staffId";
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.eq("deleteFlag", "0")).list();
+		List<?> roles = this.session.createQuery(hql)
+				.setParameter("staffId", staffId).list();
 
+		return CollectionUtil.checkList(roles, IWfRole.class);
 
-        return CollectionUtil.checkList(staffs, IFinFlowUserEntity.class);
+	}
 
-    }
+	public IFinFlowUnitEntity getUnitByStaffId(String staffId) {
 
+		String hql = "select distinct s.unit from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserEntity s where s.staffId = :staffId";
 
-    public List<IWfRole> getRolesByStaffId(String staffId) {
+		return (IFinFlowUnitEntity) this.session.createQuery(hql)
+				.setParameter("staffId", staffId).uniqueResult();
 
-        String hql = "select distinct r from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserRoleEntity m join m.staff s join m.role r where s.staffId = :staffId";
+	}
 
-        List<?> roles = this.session.createQuery(hql).setParameter("staffId", staffId).list();
+	public IFinFlowRoleEntity getRoleById(String roleId) {
 
-        return CollectionUtil.checkList(roles, IWfRole.class);
+		return (IFinFlowRoleEntity) this.session.get(IFinFlowRoleEntity.class,
+				roleId);
 
-    }
+	}
 
+	public List<IWfStaff> getStaffsByids(String... staffIds) {
 
-    public IFinFlowUnitEntity getUnitByStaffId(String staffId) {
+		List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class)
+				.add(Restrictions.in("staffId", staffIds)).list();
 
-        String hql = "select distinct s.unit from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserEntity s where s.staffId = :staffId";
+		return CollectionUtil.checkList(staffs, IWfStaff.class);
 
-        return (IFinFlowUnitEntity) this.session.createQuery(hql).setParameter("staffId", staffId).uniqueResult();
+	}
 
-    }
+	public List<IWfStaff> getStaffsByRole(String roleId) {
 
+		List<?> staffs = this.session
+				.createCriteria(IFinFlowUserRoleEntity.class)
+				.createAlias("role", "r")
+				.add(Restrictions.eq("r.roleId", roleId))
+				.setProjection(Projections.property("staff")).list();
 
-    public IFinFlowRoleEntity getRoleById(String roleId) {
+		return CollectionUtil.checkList(staffs, IWfStaff.class);
 
-        return (IFinFlowRoleEntity) this.session.get(IFinFlowRoleEntity.class, roleId);
+	}
 
-    }
+	public List<IWfStaff> getStaffsByUintId(String unitId) {
 
+		List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class)
+				.add(Restrictions.eq("unit.unitId", unitId)).list();
 
-    public List<IWfStaff> getStaffsByids(String... staffIds) {
+		return CollectionUtil.checkList(staffs, IWfStaff.class);
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.in("staffId", staffIds)).list();
+	}
 
+	public List<IWfStaff> getStaffsByRolesWithUnit(String unitId,
+			String... roleId) {
 
-        return CollectionUtil.checkList(staffs, IWfStaff.class);
+		List<IWfStaff> listByRole = getStaffsByRoles(roleId);
 
-    }
+		List<IWfStaff> listByUnit = getStaffsByUintId(unitId);
 
+		List<IWfStaff> result = new ArrayList();
 
-    public List<IWfStaff> getStaffsByRole(String roleId) {
+		for (int i = 0; i < listByRole.size(); i++) {
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserRoleEntity.class).createAlias("role", "r").add(Restrictions.eq("r.roleId", roleId)).setProjection(Projections.property("staff")).list();
+			if (listByUnit.contains(listByRole.get(i))) {
 
+				result.add(listByRole.get(i));
 
-        return CollectionUtil.checkList(staffs, IWfStaff.class);
+			}
 
-    }
+		}
 
+		return result;
 
-    public List<IWfStaff> getStaffsByUintId(String unitId) {
+	}
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.eq("unit.unitId", unitId)).list();
+	public List<String> getStaffIdsByRole(String... roleIds) {
 
+		Query query = this.session.createQuery("select ur.staff.staffId from "
+				+ IFinFlowUserRoleEntity.class.getName()
+				+ " ur where ur.role.roleId in (:roleIds)");
 
-        return CollectionUtil.checkList(staffs, IWfStaff.class);
+		query.setParameterList("roleIds", roleIds);
 
-    }
+		return CollectionUtil.checkList(query.list(), String.class);
 
+	}
 
-    public List<IWfStaff> getStaffsByRolesWithUnit(String unitId, String... roleId) {
+	public List<String> getStaffIdsByUnit(String... unitIds) {
 
-        List<IWfStaff> listByRole = getStaffsByRoles(roleId);
+		Query query = this.session.createQuery("select ur.staffId from "
+				+ IFinFlowUserEntity.class.getName()
+				+ " ur where ur.unit.unitId in (:unitIds)");
 
-        List<IWfStaff> listByUnit = getStaffsByUintId(unitId);
+		query.setParameterList("unitIds", unitIds);
 
-        List<IWfStaff> result = new ArrayList();
+		return CollectionUtil.checkList(query.list(), String.class);
 
-        for (int i = 0; i < listByRole.size(); i++) {
+	}
 
-            if (listByUnit.contains(listByRole.get(i))) {
+	public IFinFlowUnitEntity getUnitById(String unitId) {
 
-                result.add(listByRole.get(i));
+		return (IFinFlowUnitEntity) this.session
+				.createCriteria(IFinFlowUnitEntity.class)
+				.add(Restrictions.eq("unitId", unitId)).uniqueResult();
 
-            }
+	}
 
-        }
+	public List<?> getIdentityInfoPage(String param, String type, int startNum,
+			int pageSize) {
 
+		return getIdentityInfoPage(param, null, type, startNum, pageSize);
 
-        return result;
+	}
 
-    }
+	public long getIdentityInfoPageCount(String param, String type) {
 
+		return getIdentityInfoPageCount(param, null, type);
 
-    public List<String> getStaffIdsByRole(String... roleIds) {
+	}
 
-        Query query = this.session.createQuery("select ur.staff.staffId from " + IFinFlowUserRoleEntity.class.getName() + " ur where ur.role.roleId in (:roleIds)");
+	public void setSession(Session session) {
 
+		this.session = session;
 
-        query.setParameterList("roleIds", roleIds);
+	}
 
-        return CollectionUtil.checkList(query.list(), String.class);
+	public List<IWfStaff> getStaffsByUnitIds(String... unitIds) {
 
-    }
+		List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class)
+				.add(Restrictions.in("unit.unitId", unitIds)).list();
 
+		return CollectionUtil.checkList(staffs, IWfStaff.class);
 
-    public List<String> getStaffIdsByUnit(String... unitIds) {
+	}
 
-        Query query = this.session.createQuery("select ur.staffId from " + IFinFlowUserEntity.class.getName() + " ur where ur.unit.unitId in (:unitIds)");
+	public List<IWfStaff> getStaffsByRoles(String... roleIds) {
 
+		List<?> staffs = this.session
+				.createCriteria(IFinFlowUserRoleEntity.class)
+				.createAlias("role", "r")
+				.add(Restrictions.in("r.roleId", roleIds))
+				.setProjection(Projections.property("staff")).list();
 
-        query.setParameterList("unitIds", unitIds);
+		return CollectionUtil.checkList(staffs, IWfStaff.class);
 
+	}
 
-        return CollectionUtil.checkList(query.list(), String.class);
+	public List<IWfStaff> getAllStaffs() {
 
-    }
+		return this.session.createCriteria(IFinFlowUserEntity.class).list();
 
+	}
 
-    public IFinFlowUnitEntity getUnitById(String unitId) {
+	public List<String> getAllUnitLevel() {
 
-        return (IFinFlowUnitEntity) this.session.createCriteria(IFinFlowUnitEntity.class).add(Restrictions.eq("unitId", unitId)).uniqueResult();
+		List<String> list = new ArrayList();
 
-    }
+		list.add("1");
 
+		list.add("2");
 
-    public List<?> getIdentityInfoPage(String param, String type, int startNum, int pageSize) {
+		list.add("3");
 
-        return getIdentityInfoPage(param, null, type, startNum, pageSize);
+		return list;
 
-    }
+	}
 
+	public IWfGroup createGroup(String id, String name)
+			throws IFinFlowException {
 
-    public long getIdentityInfoPageCount(String param, String type) {
+		List<?> groups = this.session.createCriteria(IFinFlowGroupEntity.class)
+				.add(Restrictions.eq("groupId", id)).list();
 
-        return getIdentityInfoPageCount(param, null, type);
+		if (!groups.isEmpty()) {
 
-    }
+			throw new IFinFlowException(105007, new Object[] { id });
 
+		}
 
-    public void setSession(Session session) {
+		IFinFlowGroupEntity t = new IFinFlowGroupEntity();
 
-        this.session = session;
+		t.setGroupId(id);
 
-    }
+		t.setGroupName(name);
 
+		String dbid = ((DbidGenerator) EnvironmentImpl
+				.getFromCurrent(DbidGenerator.class)).uuid();
 
-    public List<IWfStaff> getStaffsByUnitIds(String... unitIds) {
+		t.setDbid(dbid);
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.in("unit.unitId", unitIds)).list();
+		try {
 
+			this.session.save(t);
 
-        return CollectionUtil.checkList(staffs, IWfStaff.class);
+		} catch (HibernateException e) {
 
-    }
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "createGroup" });
 
+		}
 
-    public List<IWfStaff> getStaffsByRoles(String... roleIds) {
+		return t;
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserRoleEntity.class).createAlias("role", "r").add(Restrictions.in("r.roleId", roleIds)).setProjection(Projections.property("staff")).list();
+	}
 
+	public void updateGroup(String id, String name) throws IFinFlowException {
 
-        return CollectionUtil.checkList(staffs, IWfStaff.class);
+		try {
 
-    }
+			IFinFlowGroupEntity t = (IFinFlowGroupEntity) this.session
+					.createCriteria(IFinFlowGroupEntity.class)
+					.add(Restrictions.eq("groupId", id)).uniqueResult();
 
+			if (t == null) {
 
-    public List<IWfStaff> getAllStaffs() {
+				throw new IFinFlowException(105006, new Object[] { id });
 
-        return this.session.createCriteria(IFinFlowUserEntity.class).list();
+			}
 
-    }
+			t.setGroupName(name);
 
+			this.session.update(t);
 
-    public List<String> getAllUnitLevel() {
+		} catch (HibernateException e) {
 
-        List<String> list = new ArrayList();
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "updateGroup" });
 
-        list.add("1");
+		}
 
-        list.add("2");
+	}
 
-        list.add("3");
+	public void deleteGroup(String id) throws IFinFlowException {
 
-        return list;
+		try {
 
-    }
+			IFinFlowGroupEntity g = (IFinFlowGroupEntity) getGroup(id);
 
+			Set<IFinFlowUserGroupEntity> set = g.getUserGroup();
 
-    public IWfGroup createGroup(String id, String name) throws IFinFlowException {
+			if (set != null) {
 
-        List<?> groups = this.session.createCriteria(IFinFlowGroupEntity.class).add(Restrictions.eq("groupId", id)).list();
+				for (IFinFlowUserGroupEntity ug : set) {
 
+					this.session.delete(ug);
 
-        if (!groups.isEmpty()) {
+				}
 
-            throw new IFinFlowException(105007, new Object[]{id});
+			}
 
-        }
+			this.session.delete(g);
 
+		} catch (HibernateException e) {
 
-        IFinFlowGroupEntity t = new IFinFlowGroupEntity();
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "deleteGroup" });
 
-        t.setGroupId(id);
+		}
 
-        t.setGroupName(name);
+	}
 
+	public List<IWfGroup> getGroup(String param, int startNum, int pageSize)
+			throws IFinFlowException {
 
-        String dbid = ((DbidGenerator) EnvironmentImpl.getFromCurrent(DbidGenerator.class)).uuid();
+		if (pageSize == 0) {
 
-        t.setDbid(dbid);
+			pageSize = 10;
 
-        try {
+		}
 
-            this.session.save(t);
+		List<IWfGroup> list = new ArrayList();
 
-        } catch (HibernateException e) {
+		try {
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "createGroup"});
+			Criteria criteria = this.session
+					.createCriteria(IFinFlowGroupEntity.class);
 
-        }
+			if (!StringUtils.isEmpty(param)) {
 
+				criteria.add(Restrictions.or(Restrictions.eq("groupId", param),
+						Restrictions.ilike("groupName", param,
+								MatchMode.ANYWHERE)));
 
-        return t;
+			}
 
-    }
+			if ((startNum >= 0) && (pageSize > 0)) {
 
+				criteria.setFirstResult(startNum).setMaxResults(
+						startNum + pageSize);
 
-    public void updateGroup(String id, String name) throws IFinFlowException {
+			}
 
-        try {
+			List<IFinFlowGroupEntity> groups = criteria.list();
 
-            IFinFlowGroupEntity t = (IFinFlowGroupEntity) this.session.createCriteria(IFinFlowGroupEntity.class).add(Restrictions.eq("groupId", id)).uniqueResult();
+			list = criteria.list();
 
+			List<String> staffIds = null;
 
-            if (t == null) {
+			Set<IFinFlowUserGroupEntity> ugs = null;
 
-                throw new IFinFlowException(105006, new Object[]{id});
+			IFinFlowUserEntity user = null;
 
-            }
+			for (IFinFlowGroupEntity g : groups) {
 
-            t.setGroupName(name);
+				staffIds = new ArrayList();
 
-            this.session.update(t);
+				ugs = g.getUserGroup();
 
-        } catch (HibernateException e) {
+				for (IFinFlowUserGroupEntity ug : ugs) {
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "updateGroup"});
+					user = ug.getUser();
 
-        }
+					if (user != null) {
 
-    }
+						staffIds.add(user.getStaffId());
 
+					}
 
-    public void deleteGroup(String id) throws IFinFlowException {
+				}
 
-        try {
+				g.setStaffIds(staffIds);
+			}
+		} catch (HibernateException e) {
+			List<String> staffIds;
 
-            IFinFlowGroupEntity g = (IFinFlowGroupEntity) getGroup(id);
+			Set<IFinFlowUserGroupEntity> ugs;
 
+			IFinFlowUserEntity user;
 
-            Set<IFinFlowUserGroupEntity> set = g.getUserGroup();
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "getGroup" });
 
-            if (set != null) {
+		}
 
-                for (IFinFlowUserGroupEntity ug : set) {
+		return list;
 
-                    this.session.delete(ug);
+	}
 
-                }
+	public long getGroupCount(String param) throws IFinFlowException {
 
-            }
+		long count = 0L;
 
+		try {
 
-            this.session.delete(g);
+			StringBuffer hql = new StringBuffer();
 
-        } catch (HibernateException e) {
+			hql.append("select count(g.groupId) from ");
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "deleteGroup"});
+			hql.append(IFinFlowGroupEntity.class.getName());
 
-        }
+			hql.append(" g where 1=1 ");
 
-    }
+			if (!StringUtils.isEmpty(param)) {
 
+				hql.append(" and (g.groupId=:groupId or g.groupName like :name)");
 
-    public List<IWfGroup> getGroup(String param, int startNum, int pageSize)
-            throws IFinFlowException {
+			}
 
-        if (pageSize == 0) {
+			Query query = this.session.createQuery(hql.toString());
 
-            pageSize = 10;
+			if (!StringUtils.isEmpty(param)) {
 
-        }
+				query.setParameter("groupId", param)
+						.setParameter("name", param);
 
-        List<IWfGroup> list = new ArrayList();
+			}
 
-        try {
+			count = ((Long) query.uniqueResult()).longValue();
 
-            Criteria criteria = this.session.createCriteria(IFinFlowGroupEntity.class);
+		} catch (HibernateException e) {
 
-            if (!StringUtils.isEmpty(param)) {
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "queryGroupCount" });
 
-                criteria.add(Restrictions.or(Restrictions.eq("groupId", param), Restrictions.ilike("groupName", param, MatchMode.ANYWHERE)));
+		}
 
-            }
+		return count;
 
+	}
 
-            if ((startNum >= 0) && (pageSize > 0)) {
+	public List<IWfGroup> queryGroup(String id, String name, int startNum,
+			int pageSize) throws IFinFlowException {
 
-                criteria.setFirstResult(startNum).setMaxResults(startNum + pageSize);
+		if (pageSize == 0) {
 
-            }
+			pageSize = 10;
 
+		}
 
-            List<IFinFlowGroupEntity> groups = criteria.list();
+		List<IWfGroup> list = new ArrayList();
 
-            list = criteria.list();
+		try {
 
+			Criteria criteria = this.session
+					.createCriteria(IFinFlowGroupEntity.class);
 
-            List<String> staffIds = null;
+			if (!StringUtils.isEmpty(id)) {
 
-            Set<IFinFlowUserGroupEntity> ugs = null;
+				criteria.add(Restrictions.eq("groupId", id));
 
-            IFinFlowUserEntity user = null;
+			}
 
-            for (IFinFlowGroupEntity g : groups) {
+			if (!StringUtils.isEmpty(name)) {
 
-                staffIds = new ArrayList();
+				criteria.add(Restrictions.like("groupName", "%" + name + "%",
+						MatchMode.ANYWHERE));
 
-                ugs = g.getUserGroup();
+			}
 
-                for (IFinFlowUserGroupEntity ug : ugs) {
+			if ((startNum >= 0) && (pageSize > 0)) {
 
-                    user = ug.getUser();
+				criteria.setFirstResult(startNum).setMaxResults(
+						startNum + pageSize);
 
-                    if (user != null) {
+			}
 
-                        staffIds.add(user.getStaffId());
+			list = criteria.list();
 
-                    }
+		} catch (HibernateException e) {
 
-                }
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "queryGroup" });
 
-                g.setStaffIds(staffIds);
-            }
-        } catch (HibernateException e) {
-            List<String> staffIds;
+		}
 
-            Set<IFinFlowUserGroupEntity> ugs;
+		return list;
 
-            IFinFlowUserEntity user;
+	}
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "getGroup"});
+	public long queryGroupCount(String id, String name)
+			throws IFinFlowException {
 
-        }
+		long count = 0L;
 
+		try {
 
-        return list;
+			StringBuffer hql = new StringBuffer();
 
-    }
+			hql.append("select count(g.groupId) from ")
+					.append(IFinFlowGroupEntity.class.getName())
+					.append(" g where 1=1 ");
 
+			if (!StringUtils.isEmpty(id)) {
 
-    public long getGroupCount(String param) throws IFinFlowException {
+				hql.append(" and g.groupId=:groupId");
 
-        long count = 0L;
+			}
 
-        try {
+			if (!StringUtils.isEmpty(name)) {
 
-            StringBuffer hql = new StringBuffer();
+				hql.append(" and g.groupName like :name");
 
-            hql.append("select count(g.groupId) from ");
+			}
 
-            hql.append(IFinFlowGroupEntity.class.getName());
+			Query query = this.session.createQuery(hql.toString());
 
-            hql.append(" g where 1=1 ");
+			if (!StringUtils.isEmpty(id)) {
 
-            if (!StringUtils.isEmpty(param)) {
+				query.setParameter("groupId", id);
 
-                hql.append(" and (g.groupId=:groupId or g.groupName like :name)");
+			}
 
-            }
+			if (!StringUtils.isEmpty(name)) {
 
+				query.setParameter("name", "%" + name + "%");
 
-            Query query = this.session.createQuery(hql.toString());
+			}
 
-            if (!StringUtils.isEmpty(param)) {
+			count = ((Long) query.uniqueResult()).longValue();
 
-                query.setParameter("groupId", param).setParameter("name", param);
+		} catch (HibernateException e) {
 
-            }
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "getGroupCount" });
 
-            count = ((Long) query.uniqueResult()).longValue();
+		}
 
-        } catch (HibernateException e) {
+		return count;
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "queryGroupCount"});
+	}
 
-        }
+	public List<IWfStaff> getStaffsByGroupId(String groupId)
+			throws IFinFlowException {
 
+		List<?> staffs = this.session
+				.createCriteria(IFinFlowUserGroupEntity.class)
+				.createAlias("group", "g")
+				.add(Restrictions.eq("g.groupId", groupId))
+				.setProjection(Projections.property("user")).list();
 
-        return count;
+		return CollectionUtil.checkList(staffs, IWfStaff.class);
 
-    }
+	}
 
+	public void createUserGroup(String userId, String groupId)
+			throws IFinFlowException {
 
-    public List<IWfGroup> queryGroup(String id, String name, int startNum, int pageSize) throws IFinFlowException {
+		try {
 
-        if (pageSize == 0) {
+			IFinFlowGroupEntity group = (IFinFlowGroupEntity) getGroup(groupId);
 
-            pageSize = 10;
+			if (group == null) {
 
-        }
+				throw new IFinFlowException(105006, new Object[] { groupId });
 
-        List<IWfGroup> list = new ArrayList();
+			}
 
-        try {
+			IFinFlowUserEntity user = getStaffById(userId);
 
-            Criteria criteria = this.session.createCriteria(IFinFlowGroupEntity.class);
+			if (user == null) {
 
-            if (!StringUtils.isEmpty(id)) {
+				throw new IFinFlowException(105005, new Object[] { userId });
 
-                criteria.add(Restrictions.eq("groupId", id));
+			}
 
-            }
+			IFinFlowUserGroupEntity ug = new IFinFlowUserGroupEntity();
 
-            if (!StringUtils.isEmpty(name)) {
+			ug.setGroup(group);
 
-                criteria.add(Restrictions.like("groupName", "%" + name + "%", MatchMode.ANYWHERE));
+			ug.setUser(user);
 
-            }
+			String dbid = ((DbidGenerator) EnvironmentImpl
+					.getFromCurrent(DbidGenerator.class)).uuid();
 
+			ug.setRelationId(dbid);
 
-            if ((startNum >= 0) && (pageSize > 0)) {
+			this.session.save(ug);
 
-                criteria.setFirstResult(startNum).setMaxResults(startNum + pageSize);
+		} catch (HibernateException e) {
 
-            }
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "createUserGroup" });
 
+		}
 
-            list = criteria.list();
+	}
 
-        } catch (HibernateException e) {
+	public void deleteUserGroup(String userId, String groupId)
+			throws IFinFlowException {
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "queryGroup"});
+		try {
 
-        }
+			StringBuffer hql = new StringBuffer();
 
+			hql.append("delete from ")
+					.append(IFinFlowUserGroupEntity.class.getName())
+					.append(" ug where ug.userId=:userId");
 
-        return list;
+			Query query = this.session.createQuery(hql.toString());
 
-    }
+			query.setParameter("userId", userId);
 
+			query.executeUpdate();
 
-    public long queryGroupCount(String id, String name) throws IFinFlowException {
+		} catch (HibernateException e) {
 
-        long count = 0L;
+			throw new IFinFlowException(100003, e, new Object[] {
+					OrgDefaultImpl.class.getName(), "deleteUserGroup" });
 
-        try {
+		}
 
-            StringBuffer hql = new StringBuffer();
+	}
 
-            hql.append("select count(g.groupId) from ").append(IFinFlowGroupEntity.class.getName()).append(" g where 1=1 ");
+	public IWfGroup getGroup(String id) {
 
-            if (!StringUtils.isEmpty(id)) {
+		return (IWfGroup) this.session
+				.createCriteria(IFinFlowGroupEntity.class)
+				.add(Restrictions.eq("groupId", id)).uniqueResult();
 
-                hql.append(" and g.groupId=:groupId");
+	}
 
-            }
+	public void deleteUserGroupByGroupId(String groupId)
+			throws IFinFlowException {
 
-            if (!StringUtils.isEmpty(name)) {
+		IFinFlowGroupEntity t = (IFinFlowGroupEntity) this.session
+				.createCriteria(IFinFlowGroupEntity.class)
+				.add(Restrictions.eq("groupId", groupId)).uniqueResult();
 
-                hql.append(" and g.groupName like :name");
+		if (t == null) {
 
-            }
+			throw new IFinFlowException(105006, new Object[] { groupId });
 
-            Query query = this.session.createQuery(hql.toString());
+		}
 
-            if (!StringUtils.isEmpty(id)) {
+		StringBuffer hql = new StringBuffer();
 
-                query.setParameter("groupId", id);
+		hql.append("delete from ")
+				.append(IFinFlowUserGroupEntity.class.getName())
+				.append(" ug where ug.groupId=:groupId");
 
-            }
+		Query query = this.session.createQuery(hql.toString());
 
-            if (!StringUtils.isEmpty(name)) {
+		query.setParameter("groupId", t.getDbid());
 
-                query.setParameter("name", "%" + name + "%");
+		query.executeUpdate();
 
-            }
+	}
 
-            count = ((Long) query.uniqueResult()).longValue();
+	public List<?> getIdentityInfoPage(String param, String loginUserId,
+			String type, int startNum, int pageSize) {
 
-        } catch (HibernateException e) {
+		if (pageSize == 0) {
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "getGroupCount"});
+			pageSize = 10;
 
-        }
+		}
 
+		String orgId = null;
 
-        return count;
+		if (!StringUtils.isEmpty(loginUserId)) {
 
-    }
+			IFinFlowUserEntity user = (IFinFlowUserEntity) this.session
+					.createCriteria(IFinFlowUserEntity.class)
+					.add(Restrictions.eq("staffId", loginUserId))
+					.setMaxResults(1).uniqueResult();
 
+			orgId = user.getUnit().getUnitId();
 
-    public List<IWfStaff> getStaffsByGroupId(String groupId) throws IFinFlowException {
+		}
 
-        List<?> staffs = this.session.createCriteria(IFinFlowUserGroupEntity.class).createAlias("group", "g").add(Restrictions.eq("g.groupId", groupId)).setProjection(Projections.property("user")).list();
+		Criteria criteria = null;
 
+		if ("1".equals(type)) {
 
-        return CollectionUtil.checkList(staffs, IWfStaff.class);
+			criteria = this.session.createCriteria(IFinFlowUserEntity.class)
+					.add(Restrictions.eq("deleteFlag", "0"));
 
-    }
+			if (!StringUtils.isEmpty(param)) {
 
+				criteria.add(Restrictions.or(Restrictions.eq("staffId", param),
+						Restrictions.ilike("staffName", param,
+								MatchMode.ANYWHERE)));
 
-    public void createUserGroup(String userId, String groupId) throws IFinFlowException {
+			}
 
-        try {
+			if (!StringUtils.isEmpty(orgId)) {
 
-            IFinFlowGroupEntity group = (IFinFlowGroupEntity) getGroup(groupId);
+				criteria.add(Restrictions.eq("unit.unitId", orgId));
 
-            if (group == null) {
+			}
 
-                throw new IFinFlowException(105006, new Object[]{groupId});
+		}
 
-            }
+		if ("2".equals(type)) {
 
-            IFinFlowUserEntity user = getStaffById(userId);
+			criteria = this.session.createCriteria(IFinFlowRoleEntity.class);
 
-            if (user == null) {
+			if (!StringUtils.isEmpty(param)) {
 
-                throw new IFinFlowException(105005, new Object[]{userId});
+				criteria.add(Restrictions.or(Restrictions.eq("roleId", param),
+						Restrictions.ilike("roleName", param,
+								MatchMode.ANYWHERE)));
 
-            }
+			}
 
+		}
 
-            IFinFlowUserGroupEntity ug = new IFinFlowUserGroupEntity();
+		if ("3".equals(type)) {
 
-            ug.setGroup(group);
+			criteria = this.session.createCriteria(IFinFlowUnitEntity.class);
 
-            ug.setUser(user);
+			if (!StringUtils.isEmpty(param)) {
 
+				criteria.add(Restrictions.or(Restrictions.eq("unitId", param),
+						Restrictions.ilike("unitName", param,
+								MatchMode.ANYWHERE)));
 
-            String dbid = ((DbidGenerator) EnvironmentImpl.getFromCurrent(DbidGenerator.class)).uuid();
+			}
 
-            ug.setRelationId(dbid);
+		}
 
-            this.session.save(ug);
+		if ((startNum >= 0) && (pageSize > 0)) {
 
-        } catch (HibernateException e) {
+			criteria.setFirstResult(startNum).setMaxResults(pageSize);
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "createUserGroup"});
+		}
 
-        }
+		return criteria.list();
 
-    }
+	}
 
+	public long getIdentityInfoPageCount(String param, String loginUserId,
+			String type) {
 
-    public void deleteUserGroup(String userId, String groupId) throws IFinFlowException {
+		String orgId = null;
 
-        try {
+		if (!StringUtils.isEmpty(loginUserId)) {
 
-            StringBuffer hql = new StringBuffer();
+			IFinFlowUserEntity user = (IFinFlowUserEntity) this.session
+					.createCriteria(IFinFlowUserEntity.class)
+					.add(Restrictions.eq("staffId", loginUserId))
+					.setMaxResults(1).uniqueResult();
 
-            hql.append("delete from ").append(IFinFlowUserGroupEntity.class.getName()).append(" ug where ug.userId=:userId");
+			orgId = user.getUnit().getUnitId();
 
+		}
 
-            Query query = this.session.createQuery(hql.toString());
+		StringBuffer hql = new StringBuffer();
 
-            query.setParameter("userId", userId);
+		if ("1".equals(type)) {
 
+			hql.append("select count(s.id) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserEntity s where s.deleteFlag = '0'");
 
-            query.executeUpdate();
+			if (!StringUtils.isEmpty(param)) {
 
-        } catch (HibernateException e) {
+				hql.append(" and (s.staffId = :staffId or s.staffName like :staffName)");
 
-            throw new IFinFlowException(100003, e, new Object[]{OrgDefaultImpl.class.getName(), "deleteUserGroup"});
+			}
 
-        }
+			if (!StringUtils.isEmpty(orgId)) {
 
-    }
+				hql.append(" and s.unit.unitId=:unitId");
 
+			}
 
-    public IWfGroup getGroup(String id) {
+			Query query = this.session.createQuery(hql.toString());
 
-        return (IWfGroup) this.session.createCriteria(IFinFlowGroupEntity.class).add(Restrictions.eq("groupId", id)).uniqueResult();
+			if (!StringUtils.isEmpty(param)) {
 
-    }
+				query.setParameter("staffId", param).setParameter("staffName",
+						"%" + param + "%");
 
+			}
 
-    public void deleteUserGroupByGroupId(String groupId)
-            throws IFinFlowException {
+			if (!StringUtils.isEmpty(orgId)) {
 
-        IFinFlowGroupEntity t = (IFinFlowGroupEntity) this.session.createCriteria(IFinFlowGroupEntity.class).add(Restrictions.eq("groupId", groupId)).uniqueResult();
+				query.setParameter("unitId", orgId);
 
+			}
 
-        if (t == null) {
+			return ((Long) query.uniqueResult()).longValue();
 
-            throw new IFinFlowException(105006, new Object[]{groupId});
+		}
 
-        }
+		if ("2".equals(type)) {
 
+			if (StringUtils.isEmpty(param)) {
 
-        StringBuffer hql = new StringBuffer();
+				hql.append("select count(s.roleId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowRoleEntity s ");
 
-        hql.append("delete from ").append(IFinFlowUserGroupEntity.class.getName()).append(" ug where ug.groupId=:groupId");
+				return ((Long) this.session.createQuery(hql.toString())
+						.uniqueResult()).longValue();
 
+			}
 
-        Query query = this.session.createQuery(hql.toString());
+			hql.append("select count(s.roleId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowRoleEntity s where s.roleId = :roleId or s.roleName like :roleName");
 
-        query.setParameter("groupId", t.getDbid());
+			return ((Long) this.session.createQuery(hql.toString())
+					.setParameter("roleId", param)
+					.setParameter("roleName", "%" + param + "%").uniqueResult())
+					.longValue();
 
+		}
 
-        query.executeUpdate();
+		if ("3".equals(type)) {
 
-    }
+			if (StringUtils.isEmpty(param)) {
 
+				hql.append("select count(s.unitId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUnitEntity s ");
 
-    public List<?> getIdentityInfoPage(String param, String loginUserId, String type, int startNum, int pageSize) {
+				return ((Long) this.session.createQuery(hql.toString())
+						.uniqueResult()).longValue();
 
-        if (pageSize == 0) {
+			}
 
-            pageSize = 10;
+			hql.append("select count(s.unitId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUnitEntity s where s.unitId = :unitId or s.unitName like :unitName");
 
-        }
+			return ((Long) this.session.createQuery(hql.toString())
+					.setParameter("unitId", param)
+					.setParameter("unitName", "%" + param + "%").uniqueResult())
+					.longValue();
 
-        String orgId = null;
+		}
 
-        if (!StringUtils.isEmpty(loginUserId)) {
+		return 0L;
 
-            IFinFlowUserEntity user = (IFinFlowUserEntity) this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.eq("staffId", loginUserId)).setMaxResults(1).uniqueResult();
+	}
 
+	public IWfUnit getUnit(String unitId, String unitLevel) {
 
-            orgId = user.getUnit().getUnitId();
+		IFinFlowUnitEntity unit = getUnitById(unitId);
 
-        }
+		if (unit == null) {
 
+			throw new IFinFlowException(105009, new Object[] { unitId });
 
-        Criteria criteria = null;
+		}
 
-        if ("1".equals(type)) {
+		if (StringUtils.isEmpty(unit.getUnitLevel())) {
 
-            criteria = this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.eq("deleteFlag", "0"));
+			throw new IFinFlowException(105010,
+					new Object[] { unit.getUnitId() });
 
+		}
 
-            if (!StringUtils.isEmpty(param)) {
+		int res = new BigDecimal(unitLevel).compareTo(new BigDecimal(unit
+				.getUnitLevel()));
 
-                criteria.add(Restrictions.or(Restrictions.eq("staffId", param), Restrictions.ilike("staffName", param, MatchMode.ANYWHERE)));
+		if ((res < 0) && (!StringUtils.isEmpty(unit.getParentUnitId()))) {
 
-            }
+			unit = (IFinFlowUnitEntity) getUnit(unit.getParentUnitId(),
+					unitLevel);
 
+		} else if ((StringUtils.isEmpty(unit.getParentUnitId())) && (res != 0)) {
 
-            if (!StringUtils.isEmpty(orgId)) {
+			throw new IFinFlowException(103047, new Object[0]);
 
-                criteria.add(Restrictions.eq("unit.unitId", orgId));
+		}
 
-            }
+		return unit;
 
-        }
+	}
 
-        if ("2".equals(type)) {
+	public List<String> getStaffIdsByRolesWithUnit(String unitId,
+			String... roleId) {
 
-            criteria = this.session.createCriteria(IFinFlowRoleEntity.class);
+		List<String> listByRole = getStaffIdsByRole(roleId);
 
-            if (!StringUtils.isEmpty(param)) {
+		List<String> listByUnit = getStaffIdsByUnit(new String[] { unitId });
 
-                criteria.add(Restrictions.or(Restrictions.eq("roleId", param), Restrictions.ilike("roleName", param, MatchMode.ANYWHERE)));
+		List<String> result = new ArrayList();
 
-            }
+		for (int i = 0; i < listByRole.size(); i++) {
 
-        }
+			if (listByUnit.contains(listByRole.get(i))) {
 
+				result.add(listByRole.get(i));
 
-        if ("3".equals(type)) {
+			}
 
-            criteria = this.session.createCriteria(IFinFlowUnitEntity.class);
+		}
 
-            if (!StringUtils.isEmpty(param)) {
+		return result;
 
-                criteria.add(Restrictions.or(Restrictions.eq("unitId", param), Restrictions.ilike("unitName", param, MatchMode.ANYWHERE)));
+	}
 
-            }
+	public List<String> getStaffIdsByGroupId(String groupId)
+			throws IFinFlowException {
 
-        }
+		Query query = this.session.createQuery("select ur.user.staffId from "
+				+ IFinFlowUserGroupEntity.class.getName()
+				+ " ur where ur.group.groupId in (:groupId)");
 
+		query.setParameter("groupId", groupId);
 
-        if ((startNum >= 0) && (pageSize > 0)) {
+		return CollectionUtil.checkList(query.list(), String.class);
 
-            criteria.setFirstResult(startNum).setMaxResults(pageSize);
+	}
 
-        }
+	public List<IWfGroup> getGroupsByStaffId(String staffId)
+			throws IFinFlowException {
 
+		String hql = "select distinct g from "
+				+ IFinFlowUserGroupEntity.class.getName()
+				+ " m join m.user s join m.group g where s.staffId = :staffId";
 
-        return criteria.list();
+		List<?> groups = this.session.createQuery(hql)
+				.setParameter("staffId", staffId).list();
 
-    }
+		return CollectionUtil.checkList(groups, IWfGroup.class);
 
-
-    public long getIdentityInfoPageCount(String param, String loginUserId, String type) {
-
-        String orgId = null;
-
-        if (!StringUtils.isEmpty(loginUserId)) {
-
-            IFinFlowUserEntity user = (IFinFlowUserEntity) this.session.createCriteria(IFinFlowUserEntity.class).add(Restrictions.eq("staffId", loginUserId)).setMaxResults(1).uniqueResult();
-
-
-            orgId = user.getUnit().getUnitId();
-
-        }
-
-        StringBuffer hql = new StringBuffer();
-
-        if ("1".equals(type)) {
-
-            hql.append("select count(s.id) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserEntity s where s.deleteFlag = '0'");
-
-            if (!StringUtils.isEmpty(param)) {
-
-                hql.append(" and (s.staffId = :staffId or s.staffName like :staffName)");
-
-            }
-
-            if (!StringUtils.isEmpty(orgId)) {
-
-                hql.append(" and s.unit.unitId=:unitId");
-
-            }
-
-
-            Query query = this.session.createQuery(hql.toString());
-
-
-            if (!StringUtils.isEmpty(param)) {
-
-                query.setParameter("staffId", param).setParameter("staffName", "%" + param + "%");
-
-            }
-
-            if (!StringUtils.isEmpty(orgId)) {
-
-                query.setParameter("unitId", orgId);
-
-            }
-
-            return ((Long) query.uniqueResult()).longValue();
-
-        }
-
-        if ("2".equals(type)) {
-
-            if (StringUtils.isEmpty(param)) {
-
-                hql.append("select count(s.roleId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowRoleEntity s ");
-
-                return ((Long) this.session.createQuery(hql.toString()).uniqueResult()).longValue();
-
-            }
-
-            hql.append("select count(s.roleId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowRoleEntity s where s.roleId = :roleId or s.roleName like :roleName");
-
-            return ((Long) this.session.createQuery(hql.toString()).setParameter("roleId", param).setParameter("roleName", "%" + param + "%").uniqueResult()).longValue();
-
-        }
-
-
-        if ("3".equals(type)) {
-
-            if (StringUtils.isEmpty(param)) {
-
-                hql.append("select count(s.unitId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUnitEntity s ");
-
-                return ((Long) this.session.createQuery(hql.toString()).uniqueResult()).longValue();
-
-            }
-
-            hql.append("select count(s.unitId) from com.ruimin.ifinflow.engine.assign.entity.IFinFlowUnitEntity s where s.unitId = :unitId or s.unitName like :unitName");
-
-            return ((Long) this.session.createQuery(hql.toString()).setParameter("unitId", param).setParameter("unitName", "%" + param + "%").uniqueResult()).longValue();
-
-        }
-
-
-        return 0L;
-
-    }
-
-
-    public IWfUnit getUnit(String unitId, String unitLevel) {
-
-        IFinFlowUnitEntity unit = getUnitById(unitId);
-
-        if (unit == null) {
-
-            throw new IFinFlowException(105009, new Object[]{unitId});
-
-        }
-
-
-        if (StringUtils.isEmpty(unit.getUnitLevel())) {
-
-            throw new IFinFlowException(105010, new Object[]{unit.getUnitId()});
-
-        }
-
-
-        int res = new BigDecimal(unitLevel).compareTo(new BigDecimal(unit.getUnitLevel()));
-
-
-        if ((res < 0) && (!StringUtils.isEmpty(unit.getParentUnitId()))) {
-
-            unit = (IFinFlowUnitEntity) getUnit(unit.getParentUnitId(), unitLevel);
-
-        } else if ((StringUtils.isEmpty(unit.getParentUnitId())) && (res != 0)) {
-
-            throw new IFinFlowException(103047, new Object[0]);
-
-        }
-
-        return unit;
-
-    }
-
-
-    public List<String> getStaffIdsByRolesWithUnit(String unitId, String... roleId) {
-
-        List<String> listByRole = getStaffIdsByRole(roleId);
-
-        List<String> listByUnit = getStaffIdsByUnit(new String[]{unitId});
-
-        List<String> result = new ArrayList();
-
-        for (int i = 0; i < listByRole.size(); i++) {
-
-            if (listByUnit.contains(listByRole.get(i))) {
-
-                result.add(listByRole.get(i));
-
-            }
-
-        }
-
-
-        return result;
-
-    }
-
-
-    public List<String> getStaffIdsByGroupId(String groupId)
-            throws IFinFlowException {
-
-        Query query = this.session.createQuery("select ur.user.staffId from " + IFinFlowUserGroupEntity.class.getName() + " ur where ur.group.groupId in (:groupId)");
-
-
-        query.setParameter("groupId", groupId);
-
-        return CollectionUtil.checkList(query.list(), String.class);
-
-    }
-
-
-    public List<IWfGroup> getGroupsByStaffId(String staffId) throws IFinFlowException {
-
-        String hql = "select distinct g from " + IFinFlowUserGroupEntity.class.getName() + " m join m.user s join m.group g where s.staffId = :staffId";
-
-        List<?> groups = this.session.createQuery(hql).setParameter("staffId", staffId).list();
-
-        return CollectionUtil.checkList(groups, IWfGroup.class);
-
-    }
+	}
 
 }

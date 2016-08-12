@@ -567,10 +567,3 @@ public class AssignmentHandlerImpl implements AssignmentHandler {
 		}
 	}
 }
-
-/*
- * Location:
- * /Users/Jason/Desktop/ifinflow-core.jar!/com/ruimin/ifinflow/engine/assign
- * /AssignmentHandlerImpl.class Java compiler version: 5 (49.0) JD-Core Version:
- * 0.7.1
- */
