@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: K1
+Build-Jdk: 1.6.0_45
+Specification-Title: ifinflow Core
+Specification-Version: 1.0
+Implementation-Title: ifinflow Core
+Implementation-Version: 1.0
+Implementation-Vendor-Id: com.ruimin.ifinflow
+Class-Path: hibernate-core-3.3.1.GA.jar antlr-2.7.6.jar commons-collec
+ tions-3.1.jar dom4j-1.6.1.jar jta-1.1.jar commons-lang-2.1.jar log4j-
+ 1.2.14.jar cdi-api-1.0.jar bsh-2.0b5.jar livetribe-jsr223-2.0.5.jar m
+ ail-1.4.1.jar activation-1.1.jar ant-1.7.1.jar javassist-3.4.GA.jar s
+ lf4j-api-1.5.2.jar commons-logging-1.1.1.jar
+
