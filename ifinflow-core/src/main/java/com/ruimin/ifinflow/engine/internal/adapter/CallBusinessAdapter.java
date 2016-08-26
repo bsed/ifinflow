@@ -1,22 +1,21 @@
 package com.ruimin.ifinflow.engine.internal.adapter;
 
-import com.ruimin.ifinflow.engine.external.adapter.IBusinessAdapter;
-import com.ruimin.ifinflow.engine.flowmodel.VariableSet;
-import com.ruimin.ifinflow.engine.flowmodel.util.BeanUtil;
-import com.ruimin.ifinflow.engine.flowmodel.vo.ProcessVO;
-import com.ruimin.ifinflow.engine.internal.config.UserExtendsReference;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+
 import org.jbpm.api.history.HistoryProcessInstance;
-import org.jbpm.api.history.HistoryProcessInstanceQuery;
 import org.jbpm.api.listener.EventListener;
 import org.jbpm.api.listener.EventListenerExecution;
 import org.jbpm.internal.log.Log;
 import org.jbpm.pvm.internal.env.EnvironmentImpl;
 import org.jbpm.pvm.internal.model.ExecutionImpl;
-import org.jbpm.pvm.internal.query.HistoryProcessInstanceQueryImpl;
 import org.jbpm.pvm.internal.session.DbSession;
+
+import com.ruimin.ifinflow.engine.external.adapter.IBusinessAdapter;
+import com.ruimin.ifinflow.engine.flowmodel.VariableSet;
+import com.ruimin.ifinflow.engine.flowmodel.util.BeanUtil;
+import com.ruimin.ifinflow.engine.flowmodel.vo.ProcessVO;
+import com.ruimin.ifinflow.engine.internal.config.UserExtendsReference;
 
 public class CallBusinessAdapter implements EventListener {
 	private static Log log = Log.getLog(CallBusinessAdapter.class.getName());
