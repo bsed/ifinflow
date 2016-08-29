@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd/MM/yy HH:mm:ss.SSS};%p; %C{1}.%M(%L) | %m%n"/>
+		</layout>
+	</appender>
+	<appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${ifinflow.log.dir}/wfis_log.txt"/>
+		<param name="Append" value="false"/>
+		<param name="MaxFileSize" value="2048KB"/>
+		<param name="MaxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd/MM/yy HH:mm:ss.SSS};%p; %C{1}.%M(%L) | %m%n"/>
+		</layout>
+	</appender>
+	<appender name="ERRORFILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${ifinflow.log.dir}/wfis_error.txt"/>
+		<param name="Append" value="false"/>
+		<param name="MaxFileSize" value="2048KB"/>
+		<param name="MaxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd/MM/yy HH:mm:ss.SSS};%p; %C{1}.%M(%L) | %m%n"/>
+		</layout>
+	</appender>
+	<appender name="LF5Appender" class="org.apache.log4j.lf5.LF5Appender">
+		<param name="MaxNumberOfRecords" value="1000"/>
+	</appender>
+	<logger name="wfis">
+		<level value="${ifinflow.log.level}"/>
+		<appender-ref ref="FILE"/>
+		<appender-ref ref="STDOUT"/>
+	</logger>
+	<logger name="errorwfis">
+		<level value="error"/>
+		<appender-ref ref="ERRORFILE"/>
+		<appender-ref ref="STDOUT"/>
+	</logger>
+	<logger name="com.ltfp">
+		<level value="error"/>
+		<appender-ref ref="FILE"/>
+		<appender-ref ref="STDOUT"/>
+	</logger>
+	<logger name="org.exolab.castor">
+		<level value="error"/>
+		<appender-ref ref="FILE"/>
+		<appender-ref ref="STDOUT"/>
+	</logger>
+	<logger name="httpclient.wire">
+		<level value="error"/>
+		<appender-ref ref="FILE"/>
+		<appender-ref ref="STDOUT"/>
+	</logger>
+</log4j:configuration>
