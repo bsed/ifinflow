@@ -30,276 +30,271 @@
 /*     */ import org.jbpm.pvm.internal.history.model.HistoryProcessInstanceImpl;
 /*     */ import org.jbpm.pvm.internal.model.ExecutionImpl;
 /*     */ import org.jbpm.pvm.internal.task.TaskImpl;
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ public class ProcessManager
-/*     */ {
-/*     */   private ProcessEngine processEngine;
-/*     */   private TaskService taskService;
-/*     */   private ExecutionService executionService;
-/*     */   private ManagementService managementService;
-/*     */   private IdentityService identityService;
-/*     */   private HistoryService historyService;
-/*     */   private RepositoryService repositoryService;
-/*     */   
-/*     */   public ProcessManager(ProcessEngine processEngine)
-/*     */   {
-/*  55 */     this.processEngine = processEngine;
-/*  56 */     this.repositoryService = processEngine.getRepositoryService();
-/*  57 */     this.executionService = processEngine.getExecutionService();
-/*  58 */     this.taskService = processEngine.getTaskService();
-/*  59 */     this.identityService = processEngine.getIdentityService();
-/*  60 */     this.managementService = processEngine.getManagementService();
-/*  61 */     this.historyService = processEngine.getHistoryService();
-/*     */   }
-/*     */   
-/*     */ 
-/*     */   public ProcessVO startProcess(String deployId, WfStaffVO user, VariableSet vs, String subject)
-/*     */     throws IFinFlowException
-/*     */   {
-/*  68 */     return (ProcessVO)this.processEngine.execute(new ProcessStartByDeployIdCmd(deployId, user, vs, subject));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public ProcessVO startProcess(String packageId, String templateId, int version, WfStaffVO user, VariableSet vs, String subject)
-/*     */     throws IFinFlowException
-/*     */   {
-/*  94 */     return (ProcessVO)this.processEngine.execute(new ProcessStartCmd(packageId, templateId, version, user, vs, subject));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public void cancelProcess(String processId, WfStaffVO user)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 111 */     this.processEngine.execute(new CancelProcessCmd(processId));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public void suspendProcessByTaskId(String taskId)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 124 */     ExecutionImpl process = getProcessByTaskId(taskId);
-/* 125 */     if (process == null) {
-/* 126 */       throw new IFinFlowException(102001, new Object[] { taskId });
-/*     */     }
-/* 128 */     this.processEngine.execute(new ProcessSuspendCmd(process.getDbid()));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public void resumeProcessByTaskId(String taskId)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 141 */     ExecutionImpl process = getProcessByTaskId(taskId);
-/* 142 */     if (process == null) {
-/* 143 */       throw new IFinFlowException(102001, new Object[] { taskId });
-/*     */     }
-/* 145 */     this.processEngine.execute(new ProcessResumeCmd(process.getDbid()));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public void updateProcessSubject(String processId, String subject)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 160 */     HistoryProcessInstanceImpl hpii = (HistoryProcessInstanceImpl)this.historyService.createHistoryProcessInstanceQuery().processId(processId).uniqueResult();
-/*     */     
-/*     */ 
-/* 163 */     if (hpii == null) {
-/* 164 */       throw new IFinFlowException(102001, new Object[] { processId });
-/*     */     }
-/* 166 */     hpii.setSubject(subject);
-/* 167 */     this.processEngine.execute(new ProcessUpdateCmd(hpii));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public void setVariables(String executionId, VariableSet vs)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 183 */     if (vs == null)
-/*     */     {
-/* 185 */       throw new IFinFlowException(104004, new Object[] { "null" });
-/*     */     }
-/* 187 */     this.processEngine.execute(new ProcessVariableSetCmd(executionId, vs));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public void setVariable(String executionId, Variable var)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 201 */     if (var == null)
-/*     */     {
-/* 203 */       throw new IFinFlowException(104004, new Object[] { "null" });
-/*     */     }
-/* 205 */     VariableSet vs = new VariableSet();
-/* 206 */     vs.addVariable(var);
-/*     */     
-/* 208 */     this.processEngine.execute(new ProcessVariableSetCmd(executionId, vs));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public VariableSet getVariableSet(String processId)
-/*     */   {
-/* 221 */     VariableSet vs = (VariableSet)this.processEngine.execute(new ProcessVariableFindCmd(processId));
-/*     */     
-/* 223 */     return vs;
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public Variable getVariable(String processId, String variableName)
-/*     */   {
-/* 236 */     Set<String> variableNames = new HashSet();
-/* 237 */     variableNames.add(variableName);
-/* 238 */     VariableSet vs = (VariableSet)this.processEngine.execute(new ProcessVariableFindCmd(processId, variableNames));
-/*     */     
-/* 240 */     return vs.getVariable(variableName);
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public VariableSet getVariableSet(String executionId, Set<String> variableNames)
-/*     */   {
-/* 254 */     return (VariableSet)this.processEngine.execute(new ProcessVariableFindCmd(executionId, variableNames));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */   public ExecutionImpl getExecutionImpl(String processId)
-/*     */   {
-/* 261 */     return (ExecutionImpl)this.executionService.createProcessInstanceQuery().dbid(processId).uniqueResult();
-/*     */   }
-/*     */   
-/*     */ 
-/*     */   public List<ExecutionImpl> getSubProcessInstance(String processId)
-/*     */   {
-/* 267 */     if (processId == null) {
-/* 268 */       throw new IFinFlowException(102005, new Object[0]);
-/*     */     }
-/* 270 */     String hql = "from " + ExecutionImpl.class.getName() + " where superProcessExecution.dbid = '" + processId + "'";
-/* 271 */     return (List)this.processEngine.execute(new FindByHqlCmd(hql));
-/*     */   }
-/*     */   
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */ 
-/*     */   public ExecutionImpl getProcessByTaskId(String taskId)
-/*     */     throws IFinFlowException
-/*     */   {
-/* 283 */     TaskImpl task = (TaskImpl)this.taskService.getTask(taskId);
-/* 284 */     if (task == null)
-/*     */     {
-/*     */ 
-/* 287 */       throw new IFinFlowException(103002, new Object[] { taskId });
-/*     */     }
-/* 289 */     return task.getProcessInstance();
-/*     */   }
-/*     */   
-/*     */   public void resolveException(String processId, WfStaffVO user, VariableSet vs) throws IFinFlowException
-/*     */   {
-/* 294 */     CompositeCmd compositeCmd = new CompositeCmd();
-/*     */     
-/*     */ 
-/* 297 */     this.processEngine.execute(compositeCmd);
-/*     */   }
-/*     */ }
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ public class ProcessManager
+ {
+   private ProcessEngine processEngine;
+   private TaskService taskService;
+   private ExecutionService executionService;
+   private ManagementService managementService;
+   private IdentityService identityService;
+   private HistoryService historyService;
+   private RepositoryService repositoryService;
+   
+   public ProcessManager(ProcessEngine processEngine)
+   {
+     this.processEngine = processEngine;
+     this.repositoryService = processEngine.getRepositoryService();
+     this.executionService = processEngine.getExecutionService();
+     this.taskService = processEngine.getTaskService();
+     this.identityService = processEngine.getIdentityService();
+     this.managementService = processEngine.getManagementService();
+     this.historyService = processEngine.getHistoryService();
+   }
+   
+ 
+   public ProcessVO startProcess(String deployId, WfStaffVO user, VariableSet vs, String subject)
+     throws IFinFlowException
+   {
+     return (ProcessVO)this.processEngine.execute(new ProcessStartByDeployIdCmd(deployId, user, vs, subject));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public ProcessVO startProcess(String packageId, String templateId, int version, WfStaffVO user, VariableSet vs, String subject)
+     throws IFinFlowException
+   {
+     return (ProcessVO)this.processEngine.execute(new ProcessStartCmd(packageId, templateId, version, user, vs, subject));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public void cancelProcess(String processId, WfStaffVO user)
+     throws IFinFlowException
+   {
+     this.processEngine.execute(new CancelProcessCmd(processId));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public void suspendProcessByTaskId(String taskId)
+     throws IFinFlowException
+   {
+     ExecutionImpl process = getProcessByTaskId(taskId);
+     if (process == null) {
+       throw new IFinFlowException(102001, new Object[] { taskId });
+     }
+     this.processEngine.execute(new ProcessSuspendCmd(process.getDbid()));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public void resumeProcessByTaskId(String taskId)
+     throws IFinFlowException
+   {
+     ExecutionImpl process = getProcessByTaskId(taskId);
+     if (process == null) {
+       throw new IFinFlowException(102001, new Object[] { taskId });
+     }
+     this.processEngine.execute(new ProcessResumeCmd(process.getDbid()));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public void updateProcessSubject(String processId, String subject)
+     throws IFinFlowException
+   {
+     HistoryProcessInstanceImpl hpii = (HistoryProcessInstanceImpl)this.historyService.createHistoryProcessInstanceQuery().processId(processId).uniqueResult();
+     
+ 
+     if (hpii == null) {
+       throw new IFinFlowException(102001, new Object[] { processId });
+     }
+     hpii.setSubject(subject);
+     this.processEngine.execute(new ProcessUpdateCmd(hpii));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public void setVariables(String executionId, VariableSet vs)
+     throws IFinFlowException
+   {
+     if (vs == null)
+     {
+       throw new IFinFlowException(104004, new Object[] { "null" });
+     }
+     this.processEngine.execute(new ProcessVariableSetCmd(executionId, vs));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public void setVariable(String executionId, Variable var)
+     throws IFinFlowException
+   {
+     if (var == null)
+     {
+       throw new IFinFlowException(104004, new Object[] { "null" });
+     }
+     VariableSet vs = new VariableSet();
+     vs.addVariable(var);
+     
+     this.processEngine.execute(new ProcessVariableSetCmd(executionId, vs));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public VariableSet getVariableSet(String processId)
+   {
+     VariableSet vs = (VariableSet)this.processEngine.execute(new ProcessVariableFindCmd(processId));
+     
+     return vs;
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public Variable getVariable(String processId, String variableName)
+   {
+     Set<String> variableNames = new HashSet();
+     variableNames.add(variableName);
+     VariableSet vs = (VariableSet)this.processEngine.execute(new ProcessVariableFindCmd(processId, variableNames));
+     
+     return vs.getVariable(variableName);
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   public VariableSet getVariableSet(String executionId, Set<String> variableNames)
+   {
+     return (VariableSet)this.processEngine.execute(new ProcessVariableFindCmd(executionId, variableNames));
+   }
+   
+ 
+ 
+   public ExecutionImpl getExecutionImpl(String processId)
+   {
+     return (ExecutionImpl)this.executionService.createProcessInstanceQuery().dbid(processId).uniqueResult();
+   }
+   
+ 
+   public List<ExecutionImpl> getSubProcessInstance(String processId)
+   {
+     if (processId == null) {
+       throw new IFinFlowException(102005, new Object[0]);
+     }
+     String hql = "from " + ExecutionImpl.class.getName() + " where superProcessExecution.dbid = '" + processId + "'";
+     return (List)this.processEngine.execute(new FindByHqlCmd(hql));
+   }
+   
+ 
+ 
+ 
+ 
+ 
+ 
+   public ExecutionImpl getProcessByTaskId(String taskId)
+     throws IFinFlowException
+   {
+     TaskImpl task = (TaskImpl)this.taskService.getTask(taskId);
+     if (task == null)
+     {
+ 
+       throw new IFinFlowException(103002, new Object[] { taskId });
+     }
+     return task.getProcessInstance();
+   }
+   
+   public void resolveException(String processId, WfStaffVO user, VariableSet vs) throws IFinFlowException
+   {
+     CompositeCmd compositeCmd = new CompositeCmd();
+     
+ 
+     this.processEngine.execute(compositeCmd);
+   }
+ }
 
-
-/* Location:              /Users/Jason/Desktop/ifinflow-core.jar!/com/ruimin/ifinflow/engine/internal/process/ProcessManager.class
- * Java compiler version: 5 (49.0)
- * JD-Core Version:       0.7.1
- */
