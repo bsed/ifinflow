@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.ruimin.ifinflow.engine.assign.entity"
+	default-access="field">
+
+	<!-- ### IFinFlowWorkloadEntity ########################################################### -->
+	<class name="IFinFlowWorkloadEntity" table="IFF_WORKLOAD">
+		<id name="staffId" column="STAFFID" length="32">
+			<generator class="assigned" />
+		</id>
+
+		<property name="staffName" column="STAFFNAME" length="64" />
+		<property name="workload" column="WORKLOAD" type="integer" />
+		<property name="doneWorkCount" column="DONEWORKCOUNT"/>
+	</class>
+</hibernate-mapping>

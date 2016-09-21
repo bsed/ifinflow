@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.Node" table="IFF_NODE">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="templateHandle" type="string">
+            <column name="TEMPLATEHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="nodeId" type="string">
+            <column name="NODEID" length="64" not-null="true" />
+        </property>
+        <property name="name" type="string">
+            <column name="NAME" length="64" not-null="true" />
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        <property name="kind" type="integer">
+            <column name="KIND" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="url" type="string">
+            <column name="URL" length="255" />
+        </property>
+        <property name="oprateAuth" type="string">
+            <column name="OPRATEAUTH" length="3" />
+        </property>
+        <property name="skipAuth" type="string">
+            <column name="SKIPAUTH" length="2" />
+        </property>
+        <property name="rejectAuth" type="string">
+            <column name="REJECTAUTH" length="2" />
+        </property>
+        <property name="rejectDefault" type="string">
+            <column name="REJECTDEFAULT" length="1" />
+        </property>
+        <property name="rejectdContinue" type="string">
+            <column name="REJECTDCONTINUE" length="1" />
+        </property>
+        <property name="adapterType" type="string">
+            <column name="ADAPTERTYPE" length="1" />
+        </property>
+        <property name="adapterName" type="string">
+            <column name="ADAPTERNAME" length="255" />
+        </property>
+        <property name="matchId" type="string">
+            <column name="MATCHID" length="32" />
+        </property>
+        <property name="priority" type="integer">
+            <column name="PRIORITY" precision="3" scale="0" not-null="true" />
+        </property>
+        <property name="display" type="integer">
+            <column name="DISPLAY" length="1"/>
+        </property>
+        <property name="rejectDefaultNodeId" type="string">
+            <column name="REJECTDEFAULTNODEID" length="64"/>
+        </property>
+        <property name="rejectAssignType" type="string">
+            <column name="REJECTASSIGNTYPE" length="1"/>
+        </property>
+    </class>
+</hibernate-mapping>

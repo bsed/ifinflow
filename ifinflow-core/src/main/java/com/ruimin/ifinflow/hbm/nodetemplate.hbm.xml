@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.NodeTemplate" table="IFF_NODETEMPLATE">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="templateHandle" type="string">
+            <column name="TEMPLATEHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="nodeTemplateId" type="string">
+            <column name="NODETEMPLATEID" length="64" not-null="true" />
+        </property>
+        <property name="name" type="string">
+            <column name="NAME" length="64" not-null="true" />
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        <property name="kind" type="integer">
+            <column name="KIND" precision="2" scale="0" not-null="true">
+            </column>
+        </property>
+        <property name="url" type="string">
+            <column name="URL" length="512" />
+        </property>
+    </class>
+</hibernate-mapping>

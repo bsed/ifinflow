@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.NodeTime" table="IFF_NODETIME">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="delayDay" type="integer">
+            <column name="DELAYDAY" precision="2" scale="0" not-null="true">
+            </column>
+        </property>
+        <property name="delayHour" type="integer">
+            <column name="DELAYHOUR" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="delayMinute" type="integer">
+            <column name="DELAYMINUTE" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="delaySecond" type="integer">
+            <column name="DELAYSECOND" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="cycleType" type="string">
+            <column name="CYCLETYPE" length="1" />
+        </property>
+        <property name="cycleCount" type="integer">
+            <column name="CYCLECOUNT" precision="5" scale="0" />
+        </property>
+        <property name="intervalDay" type="integer">
+            <column name="INTERVALDAY" precision="2" scale="0" />
+        </property>
+        <property name="intervalHour" type="integer">
+            <column name="INTERVALHOUR" precision="2" scale="0"  />
+        </property>
+        <property name="intervalMinute" type="integer">
+            <column name="INTERVALMINUTE" precision="2" scale="0" />
+        </property>
+        <property name="intervalSecond" type="integer">
+            <column name="INTERVALSECOND" precision="2" scale="0" />
+        </property>
+        <property name="continueDay" type="integer">
+            <column name="CONTINUEDAY" precision="2" scale="0" />
+        </property>
+        <property name="continueHour" type="integer">
+            <column name="CONTINUEHOUR" precision="2" scale="0" />
+        </property>
+        <property name="continueMinute" type="integer">
+            <column name="CONTINUEMINUTE" precision="2" scale="0" />
+        </property>
+        <property name="continueSecond" type="integer">
+            <column name="CONTINUESECOND" precision="2" scale="0" />
+        </property>
+    </class>
+</hibernate-mapping>

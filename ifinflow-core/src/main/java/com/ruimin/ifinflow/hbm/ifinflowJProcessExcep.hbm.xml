@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.engine.internal.entity.IFinFlowJProcessExcep" table="IFF_J_PROCESSEXCEPTION">
+        <id name="dbid" type="string">
+            <column name="DBID_" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="packageId" type="string">
+            <column name="PACKAGEID_" />
+        </property>
+        <property name="hproci" type="string">
+            <column name="HPROCI_" />
+        </property>
+        <property name="hmprocl" type="string">
+            <column name="HMPROCL_" />
+        </property>
+        <property name="hacti" type="string">
+            <column name="HACTI_" length="32" />
+        </property>
+        <property name="expCode" type="string">
+            <column name="EXPCODE_" length="50" />
+        </property>
+        <property name="expMessage" type="string">
+            <column name="EXPMESSAGE_" />
+        </property>
+        <property name="status" type="integer">
+            <column name="STATUS_" />
+        </property>
+        <property name="nodeId" type="string">
+            <column name="NODEID_" length="64" not-null="true" />
+        </property>
+        <property name="nodeName" type="string">
+            <column name="NODENAME_" length="64" />
+        </property>
+        <property name="nodeKind" type="string">
+            <column name="NODEKIND_"  length="2" not-null="true" />
+        </property>
+        <property name="templateId" type="string">
+            <column name="TEMPLATEID_" length="64" not-null="true" />
+        </property>
+        <property name="templateName" type="string">
+            <column name="TEMPLATENAME_" length="64" />
+        </property>
+        <property name="templateVersion" type="java.lang.Integer">
+            <column name="TEMPLATEVERSION_" not-null="true" />
+        </property>
+        <property name="subject" type="string">
+            <column name="SUBJECT_" />
+        </property>
+        <property name="createdDateTime" type="timestamp">
+            <column name="CREATEDDATETIME_" length="19" />
+        </property>
+        <property name="resolverId" type="string">
+            <column name="RESOLVERID_" length="64" />
+        </property>
+        <property name="resolverName" type="string">
+            <column name="RESOLVERNAME_" length="64" />
+        </property>
+        <property name="resolvedTime" type="java.util.Date">
+            <column name="RESOLVEDTIME_" />
+        </property>
+        <property name="exceptionPos" type="integer">
+            <column name="EXCEPTIONPOS_" />
+        </property>
+        <property name="executionStatus" type="integer">
+            <column name="EXECUTIONSTATUS_" />
+        </property>
+        <property name="executionId" type="string">
+            <column name="EXECUTIONID_" length="255"/>
+        </property>
+        <property name="operationName" type="string">
+            <column name="OPERATIONNAME_" length="100"/>
+        </property>
+    </class>
+</hibernate-mapping>

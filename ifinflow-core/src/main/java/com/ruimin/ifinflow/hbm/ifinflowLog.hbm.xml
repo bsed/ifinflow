@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.engine.internal.entity.IFinFlowLog" table="IFF_LOG">
+        <id name="poid" type="string">
+            <column name="POID" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="categoryId" type="string">
+            <column name="CATEGORYPOID" length="32" not-null="true" />
+        </property>
+        <property name="logTime" type="timestamp">
+            <column name="LOGTIME" length="19" not-null="true" />
+        </property>
+        <property name="logTitle" type="string">
+            <column name="LOGTITLE" />
+        </property>
+        <property name="logContent" type="string">
+            <column name="LOGCONTENT" />
+        </property>
+        <property name="mpid" type="string">
+            <column name="MPID" length="32" />
+        </property>
+        <property name="processPoid" type="string">
+            <column name="PROCESSPOID" length="32" />
+        </property>
+        <property name="actionName" type="string">
+            <column name="ACTIONNAME" length="64" />
+        </property>
+        <property name="actionType" type="string">
+            <column name="ACTIONTYPE" length="32" />
+        </property>
+        <property name="operatorId" type="string">
+            <column name="OPERATORID" length="64" />
+        </property>
+        <property name="operatorName" type="string">
+            <column name="OPERATORNAME" length="64" />
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+    </class>
+</hibernate-mapping>

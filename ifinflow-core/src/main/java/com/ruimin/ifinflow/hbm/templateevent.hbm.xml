@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.TemplateEvent" table="IFF_TEMPLATEEVENT">
+        <id name="id" type="string">
+            <column name="POID" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="templateHandle" type="string">
+            <column name="TEMPLATEHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="type" type="integer">
+            <column name="TYPE" scale="0" not-null="true" />
+        </property>
+        <property name="adapterType" type="string">
+            <column name="ADAPTERTYPE" length="1" not-null="true" />
+        </property>
+        <property name="adapterName" type="string">
+            <column name="ADAPTERNAME" not-null="true">
+            </column>
+        </property>
+        <!-- <property name="control" type="string">
+            <column name="CONTROL" length="1" />
+        </property> -->
+    </class>
+</hibernate-mapping>

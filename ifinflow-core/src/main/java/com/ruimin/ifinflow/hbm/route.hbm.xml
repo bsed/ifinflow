@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.Route" table="IFF_ROUTE">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="64"/>
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        <property name="templateHandle" type="string">
+            <column name="TEMPLATEHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="fromHandle" type="string">
+            <column name="FROMHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="toHandle" type="string">
+            <column name="TOHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="exrpress" type="string">
+            <column name="EXRP" length="256" />
+        </property>
+        <property name="isDefault" type="char">
+            <column name="ISDEFAULT" length="1" />
+        </property>
+    </class>
+</hibernate-mapping>

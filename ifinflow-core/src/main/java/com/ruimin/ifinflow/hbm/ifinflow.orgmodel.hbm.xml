@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.ruimin.ifinflow.engine.assign.entity"
+	default-access="field">
+
+	<!-- ### IFinFlowUserEntity ########################################################### -->
+	<class name="IFinFlowUserEntity" table="IFF_USER">
+		<id name="staffId" column="USERID" length="32">
+			<generator class="assigned" />
+		</id>
+
+		<property name="staffName" column="USERNAME" length="64" />
+		<property name="deleteFlag" column="DELETEFLAG" length="1" />
+		<property name="businessEmail" column="BUSINESSEMAIL" length="64" />
+		<property name="phone" column="PHONE" length="15" />
+		<many-to-one name="unit" class="IFinFlowUnitEntity" fetch="select">
+			<column name="OWNERUNITID" />
+		</many-to-one>
+		<set name="staffRoles" table="IFF_USER_ROLE" inverse="true"
+			lazy="true" fetch="select">
+			<key>
+				<column name="USERID" length="32" not-null="true" />
+			</key>
+			<one-to-many class="IFinFlowUserRoleEntity" />
+		</set>
+	</class>
+
+
+	<!-- ### IFinFlowUnitEntity ########################################################### -->
+	<class name="IFinFlowUnitEntity" table="IFF_UNIT">
+		<id name="unitId" column="UNITID" length="32">
+			<generator class="assigned" />
+		</id>
+
+		<property name="unitName" column="UNITNAME" length="64" />
+		<property name="brno" column="BRNO" length="32" />
+		<property name="unitLevel" column="UNITLEVEL" length="1" />
+
+		<property name="unitKind" column="UNITKIND" length="10" />
+		<property name="parentUnitId" column="PARENTUNITID" length="32"/>
+	</class>
+
+
+	<!-- ### IFinFlowUserRoleEntity ##################################################### -->
+	<class name="IFinFlowUserRoleEntity" table="IFF_USER_ROLE">
+		<id name="relationId" column="RELATIONID">
+			<generator class="assigned" />
+		</id>
+
+		<many-to-one name="staff"  class="IFinFlowUserEntity" foreign-key="none">
+			<column name="USERID" not-null="true"></column>
+		</many-to-one>
+
+		<many-to-one name="role" class="IFinFlowRoleEntity" foreign-key="none">
+			<column name="ROLEID" not-null="true"/>
+		</many-to-one>
+	</class>
+
+	<!-- ### IFinFlowRoleEntity ########################################################### -->
+	<class name="IFinFlowRoleEntity" table="IFF_ROLE">
+		<id name="roleId" column="ROLEID">
+			<generator class="assigned" />
+		</id>
+
+		<property name="roleName" column="ROLENAME" length="64" />
+		<set name="staffRoles" table="IFF_USER_ROLE" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="ROLEID" length="32" not-null="true" />
+            </key>
+            <one-to-many class="IFinFlowUserRoleEntity" />
+        </set>
+	</class>
+	
+</hibernate-mapping>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.engine.internal.entity.IFinFlowCategory" table="IFF_CATEGORY">
+        <id name="poid" type="string">
+            <column name="POID" length="32" />
+            <generator class="assigned" />
+        </id>
+        <many-to-one name="parent" class="com.ruimin.ifinflow.engine.internal.entity.IFinFlowCategory" fetch="select">
+            <column name="UPPERPOID" length="32" />
+        </many-to-one>
+        <property name="code" type="string">
+            <column name="CODE" length="32" />
+        </property>
+        <property name="name" type="string">
+            <column name="NAME" length="64" not-null="true" />
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        <property name="type" type="string">
+            <column name="TYPE" length="20" />
+        </property>
+        <set name="children" table="IFF_CATEGORY" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="UPPERPOID" length="32" />
+            </key>
+            <one-to-many class="com.ruimin.ifinflow.engine.internal.entity.IFinFlowCategory" />
+        </set>
+        <set name="ifinflowConfigs" table="IFF_CONFIG" inverse="true" lazy="true" fetch="select" order-by="POID">
+            <key>
+                <column name="CATEGORYPOID" length="32" not-null="true" />
+            </key>
+            <one-to-many class="com.ruimin.ifinflow.engine.internal.entity.IFinFlowConfig" />
+        </set>
+        <set name="ifinflowLogs" table="IFF_LOG" inverse="true" lazy="true" fetch="select" order-by="POID">
+            <key>
+                <column name="CATEGORYPOID" length="32" not-null="true" />
+            </key>
+            <one-to-many class="com.ruimin.ifinflow.engine.internal.entity.IFinFlowLog" />
+        </set>
+    </class>
+</hibernate-mapping>

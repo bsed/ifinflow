@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+  <!-- ### Group ########################################################### -->
+  <class name="com.ruimin.ifinflow.engine.assign.entity.IFinFlowGroupEntity" 
+         table="IFF_GROUP">
+    <id name="dbid" column="DBID" length="32">
+		<generator class="assigned" />
+	</id>
+	
+	<property name="groupId" column="GROUPID"/>
+	<property name="groupName" column="GROUPNAME" length="64" />
+	
+	<set name="userGroup" table="IFF_USER_GROUP" inverse="true"
+			lazy="true" fetch="select">
+		<key>
+			<column name="GROUPID" length="32" not-null="true" />
+		</key>
+		<one-to-many class="com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserGroupEntity" />
+	</set>
+  </class>
+  
+  <!-- ### IFinFlowUserRoleEntity ##################################################### -->
+	<class name="com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserGroupEntity" table="IFF_USER_GROUP">
+		<id name="relationId" column="RELATIONID">
+			<generator class="assigned" />
+		</id>
+		
+		<property name="groupId" column="GROUPID" insert="false" update="false"/>
+		<property name="userId" column="USERID" insert="false" update="false"/>
+		<many-to-one name="user"  class="com.ruimin.ifinflow.engine.assign.entity.IFinFlowUserEntity" foreign-key="none">
+			<column name="USERID" not-null="true"></column>
+		</many-to-one>
+
+		<many-to-one name="group" class="com.ruimin.ifinflow.engine.assign.entity.IFinFlowGroupEntity" foreign-key="none">
+			<column name="GROUPID" not-null="true"/>
+		</many-to-one>
+	</class>
+  
+
+</hibernate-mapping>

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.NodeTimeLimit" table="IFF_NODETIMELIMIT">
+        <id name="id" type="string">
+            <column name="POID" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="nodeKind" type="string">
+            <column name="NODEKIND" length="1" not-null="true">
+            </column>
+        </property>
+        <property name="nodeHandle" type="string">
+            <column name="NODEHANDLE" length="32" not-null="true" />
+        </property>
+        <property name="timingScheme" type="string">
+            <column name="TIMINGSCHEME" length="1" />
+        </property>
+        <property name="consumeDay" type="integer">
+            <column name="CONSUMEDAY" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="consumeHour" type="integer">
+            <column name="CONSUMEHOUR" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="consumeMinute" type="integer">
+            <column name="CONSUMEMINUTE" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="consumeSecond" type="integer">
+            <column name="CONSUMESECOND" precision="2" scale="0" not-null="true" />
+        </property>
+        <property name="adapterType" type="string">
+            <column name="ADAPTERTYPE" length="1" not-null="true">
+            </column>
+        </property>
+        <property name="adapterName" type="string">
+            <column name="ADAPTERNAME">
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

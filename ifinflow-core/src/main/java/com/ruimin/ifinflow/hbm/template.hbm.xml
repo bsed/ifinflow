@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ruimin.ifinflow.model.flowmodel.xml.Template" table="IFF_TEMPLATE">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="packageHandle" type="string">
+            <column name="PACKAGEHANDLE" not-null="true" />
+        </property>
+        <property name="templateId" type="string">
+            <column name="TEMPLATEID" length="64" not-null="true" />
+        </property>
+        <property name="name" type="string">
+            <column name="NAME" length="64" not-null="true" />
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        <property name="version" type="integer">
+            <column name="VERSION" precision="5" scale="0" not-null="true" />
+        </property>
+        <property name="creatorId" type="string">
+            <column name="CREATORID" length="64" />
+        </property>
+        <property name="creatorName" type="string">
+            <column name="CREATORNAME" length="64" />
+        </property>
+        <property name="createdTime" type="timestamp">
+            <column name="CREATEDTIME" length="0" />
+        </property>
+        <property name="lastModifierId" type="string">
+            <column name="LASTMODIFIERID" length="64" />
+        </property>
+        <property name="lastModifierName" type="string">
+            <column name="LASTMODIFIERNAME" length="64" />
+        </property>
+        <property name="lastModifiedTime" type="timestamp">
+            <column name="LASTMODIFIEDTIME" length="0" />
+        </property>
+        <property name="deployedTime" type="timestamp">
+            <column name="DEPLOYEDTIME" length="0" />
+        </property>
+        <property name="effectType" type="string">
+            <column name="EFFECTTYPE" length="1" not-null="true" />
+        </property>
+        <property name="appointTime" type="timestamp">
+            <column name="APPOINTTIME" length="0" />
+        </property>
+        <property name="deploymentId" type="string">
+            <column name="DEPLOYMENTID" length="20" />
+        </property>
+        <property name="isDeployed" type="string">
+            <column name="ISDEPLOYED" length="1" />
+        </property>
+        <set name="designTemplateSet" inverse="true" cascade="save-update" lazy="false">
+			<key column="TEMPLATEHANDLE"/>
+			<one-to-many class="com.ruimin.ifinflow.model.flowmodel.xml.DesignTemplate"/>
+		</set>
+		<property name="priority" type="integer">
+            <column name="PRIORITY" length="3" />
+        </property>
+        <property name="isLock" type="string">
+            <column name="ISLOCK" length="1" />
+        </property>
+        <property name="firstTaskCommit" type="string">
+            <column name="FIRSTTASKCOMMIT" length="1" />
+        </property>
+        
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.TemplatePackage" table="IFF_PACKAGE">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="templatePackageId" type="string">
+            <column name="TEMPLATEPACKAGEID" not-null="true" />
+        </property>
+        <property name="currentId" type="string">
+            <column name="CURRENTID" length="64" />
+        </property>
+        <property name="name" type="string">
+            <column name="NAME" length="64" />
+        </property>
+<!--         <property name="superHandle" type="string"> -->
+<!--             <column name="SUPERHANDLE" length="32" /> -->
+<!--         </property> -->
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        
+        <many-to-one name="parent" column="SUPERHANDLE" />
+		<set name="children" lazy="false">
+			<key column="SUPERHANDLE" />
+			<one-to-many class="com.ruimin.ifinflow.model.flowmodel.xml.TemplatePackage" />
+		</set>
+    </class>
+</hibernate-mapping>

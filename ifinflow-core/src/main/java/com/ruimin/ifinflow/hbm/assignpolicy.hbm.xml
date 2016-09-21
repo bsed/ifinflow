@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.ruimin.ifinflow.model.flowmodel.xml.AssignPolicy" table="IFF_ASSIGNPOLICY">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="assignMode" type="integer">
+            <column name="ASSIGNMODE" precision="1" scale="0" not-null="true" />
+        </property>
+        <property name="exitType" type="string">
+            <column name="EXITTYPE" length="1"/>
+        </property>
+        <property name="exitCount" type="integer">
+            <column name="EXITCOUNT" precision="5" scale="0" />
+        </property>
+        <property name="participantType" type="integer">
+            <column name="PTKIND" length="1" not-null="true" />
+        </property>
+        <property name="participantAssign" type="integer">
+            <column name="PTASSIGN" precision="2" scale="0" />
+        </property>
+        <property name="participantHistory" type="integer">
+            <column name="PTHISTORY" precision="2" scale="0" />
+        </property>
+        <property name="result" type="string">
+            <column name="RESULT" length="255" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.ruimin.ifinflow.model.flowmodel.xml.DesignTemplate" table="IFF_TEMPLATEDESIGN">
+        <id name="handle" type="string">
+            <column name="HANDLE" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="version" type="integer">
+            <column name="VERSION" precision="5" scale="0" not-null="true" />
+        </property>
+        <property name="packageHandle" type="string">
+            <column name="PACKAGEHANDLE" not-null="true" />
+        </property>
+        <property name="designTemplateId" type="string">
+            <column name="designTemplateId" length="64" not-null="true" />
+        </property>
+        <property name="name" type="string">
+            <column name="NAME" length="64" not-null="true" />
+        </property>
+        <property name="remark" type="string">
+            <column name="REMARK" />
+        </property>
+        <property name="isDeployed" type="string">
+            <column name="ISDEPLOYED" length="1" />
+        </property>
+        <property name="content" type="text">
+            <column name="CONTENT" not-null="true" />
+        </property>
+        <property name="templatePicture" type="blob">
+        	<column name="TEMPLATEPICTURE" />
+        </property>
+        <many-to-one name="template" class="com.ruimin.ifinflow.model.flowmodel.xml.Template" column="TEMPLATEHANDLE"/>
+    </class>
+</hibernate-mapping>
