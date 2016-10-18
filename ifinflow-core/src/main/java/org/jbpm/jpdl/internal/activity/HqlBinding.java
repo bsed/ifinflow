@@ -1,95 +1,64 @@
-/*    */ package org.jbpm.jpdl.internal.activity;
-/*    */ 
-/*    */ import java.util.ArrayList;
-/*    */ import java.util.List;
-/*    */ import org.jbpm.jpdl.internal.xml.JpdlParser;
-/*    */ import org.jbpm.pvm.internal.util.XmlUtil;
-/*    */ import org.jbpm.pvm.internal.wire.Descriptor;
-/*    */ import org.jbpm.pvm.internal.wire.descriptor.ListDescriptor;
-/*    */ import org.jbpm.pvm.internal.wire.xml.WireParser;
-/*    */ import org.jbpm.pvm.internal.xml.Parse;
-/*    */ import org.w3c.dom.Element;
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ 
-/*    */ public class HqlBinding
-/*    */   extends JpdlBinding
-/*    */ {
-/*    */   public static final String TAG = "hql";
-/*    */   
-/*    */   public HqlBinding()
-/*    */   {
-/* 44 */     super("hql");
-/*    */   }
-/*    */   
-/*    */   protected HqlBinding(String tagName) {
-/* 48 */     super(tagName);
-/*    */   }
-/*    */   
-/*    */   public Object parseJpdl(Element element, Parse parse, JpdlParser parser) {
-/* 52 */     HqlActivity hqlActivity = createHqlActivity();
-/*    */     
-/* 54 */     Element queryElement = XmlUtil.element(element, "query", parse);
-/* 55 */     if (queryElement != null) {
-/* 56 */       String query = XmlUtil.getContentText(queryElement);
-/* 57 */       hqlActivity.setQuery(query);
-/*    */     }
-/*    */     
-/* 60 */     Boolean resultUnique = XmlUtil.attributeBoolean(element, "unique", parse);
-/* 61 */     if (resultUnique != null) {
-/* 62 */       hqlActivity.setResultUnique(resultUnique.booleanValue());
-/*    */     }
-/*    */     
-/* 65 */     String variableName = XmlUtil.attribute(element, "var", parse);
-/* 66 */     hqlActivity.setResultVariableName(variableName);
-/*    */     
-/* 68 */     Element parametersElement = XmlUtil.element(element, "parameters");
-/* 69 */     List<Element> paramElements = XmlUtil.elements(parametersElement);
-/* 70 */     if (!paramElements.isEmpty()) {
-/* 71 */       List<Descriptor> parametersDescriptor = new ArrayList();
-/* 72 */       for (Element paramElement : paramElements) {
-/* 73 */         WireParser wireParser = WireParser.getInstance();
-/* 74 */         Descriptor paramDescriptor = (Descriptor)wireParser.parseElement(paramElement, parse, "descriptor");
-/* 75 */         parametersDescriptor.add(paramDescriptor);
-/*    */       }
-/*    */       
-/* 78 */       ListDescriptor parametersListDescriptor = new ListDescriptor();
-/* 79 */       parametersListDescriptor.setValueDescriptors(parametersDescriptor);
-/* 80 */       hqlActivity.setParametersDescriptor(parametersListDescriptor);
-/*    */     }
-/*    */     
-/* 83 */     return hqlActivity;
-/*    */   }
-/*    */   
-/*    */   protected HqlActivity createHqlActivity() {
-/* 87 */     return new HqlActivity();
-/*    */   }
-/*    */ }
+package org.jbpm.jpdl.internal.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.jbpm.jpdl.internal.xml.JpdlParser;
+import org.jbpm.pvm.internal.util.XmlUtil;
+import org.jbpm.pvm.internal.wire.Descriptor;
+import org.jbpm.pvm.internal.wire.descriptor.ListDescriptor;
+import org.jbpm.pvm.internal.wire.xml.WireParser;
+import org.jbpm.pvm.internal.xml.Parse;
+import org.w3c.dom.Element;
 
-/* Location:              /Users/Jason/Desktop/ifinflow-core.jar!/org/jbpm/jpdl/internal/activity/HqlBinding.class
- * Java compiler version: 5 (49.0)
- * JD-Core Version:       0.7.1
- */
+public class HqlBinding extends JpdlBinding {
+	public static final String TAG = "hql";
+
+	public HqlBinding() {
+		super("hql");
+	}
+
+	protected HqlBinding(String tagName) {
+		super(tagName);
+	}
+
+	public Object parseJpdl(Element element, Parse parse, JpdlParser parser) {
+		HqlActivity hqlActivity = createHqlActivity();
+
+		Element queryElement = XmlUtil.element(element, "query", parse);
+		if (queryElement != null) {
+			String query = XmlUtil.getContentText(queryElement);
+			hqlActivity.setQuery(query);
+		}
+
+		Boolean resultUnique = XmlUtil.attributeBoolean(element, "unique",
+				parse);
+		if (resultUnique != null) {
+			hqlActivity.setResultUnique(resultUnique.booleanValue());
+		}
+
+		String variableName = XmlUtil.attribute(element, "var", parse);
+		hqlActivity.setResultVariableName(variableName);
+
+		Element parametersElement = XmlUtil.element(element, "parameters");
+		List<Element> paramElements = XmlUtil.elements(parametersElement);
+		if (!paramElements.isEmpty()) {
+			List<Descriptor> parametersDescriptor = new ArrayList();
+			for (Element paramElement : paramElements) {
+				WireParser wireParser = WireParser.getInstance();
+				Descriptor paramDescriptor = (Descriptor) wireParser
+						.parseElement(paramElement, parse, "descriptor");
+				parametersDescriptor.add(paramDescriptor);
+			}
+
+			ListDescriptor parametersListDescriptor = new ListDescriptor();
+			parametersListDescriptor.setValueDescriptors(parametersDescriptor);
+			hqlActivity.setParametersDescriptor(parametersListDescriptor);
+		}
+
+		return hqlActivity;
+	}
+
+	protected HqlActivity createHqlActivity() {
+		return new HqlActivity();
+	}
+}
